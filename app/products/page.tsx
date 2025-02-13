@@ -1,23 +1,17 @@
 
+import Link from 'next/link';
+import styles from '../page.module.css';
+
 export default function Products() {
   return (
-    <div>
-      <h1>Products</h1>
-      <div className="card" style={{ marginTop: '2rem' }}>
-        <h2>Inventory Management</h2>
-        <p>Product catalog and inventory management will be implemented here</p>
-      </div>
-    </div>
-  );
-}
-export default function Products() {
-  return (
-    <div>
-      <h1>Products</h1>
-      <div className="card" style={{ marginTop: '2rem' }}>
-        <h2>Inventory</h2>
-        <p>Product inventory will be displayed here</p>
-      </div>
+    <div className={styles.container}>
+      <main className={styles.main}>
+        <h1 className={styles.title}>Products</h1>
+        <p>Product management functionality will go here</p>
+        <Link href="/" className={styles.button}>
+          Back to Home
+        </Link>
+      </main>
     </div>
   );
 }
