@@ -1,32 +1,61 @@
+
 import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="hero">
-      <h1 className="hero-title">Vision Plus Optical</h1>
-      <p className="hero-subtitle">Your trusted partner for quality eyewear and eye care</p>
-
-      <div className="features-grid">
-        <div className="feature">
-          <h2>Quality Frames</h2>
-          <p>Wide selection of designer frames and sunglasses</p>
+    <div>
+      <section className="hero">
+        <div className="hero-content">
+          <h1 className="hero-title">Vision Plus Optical</h1>
+          <p className="hero-subtitle">Discover Premium Eyewear for Every Style</p>
+          <Link href="/book-appointment" className="cta-button">
+            Book an Eye Exam
+          </Link>
         </div>
+      </section>
 
-        <div className="feature">
-          <h2>Expert Service</h2>
-          <p>Professional fitting and adjustments by certified opticians</p>
+      <section className="features">
+        <div className="feature-grid">
+          <div className="feature-card">
+            <div className="feature-icon">👓</div>
+            <h3>Designer Frames</h3>
+            <p>Exclusive collection of premium brands</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">🔍</div>
+            <h3>Eye Exams</h3>
+            <p>Comprehensive vision care</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">⚡</div>
+            <h3>1-Hour Service</h3>
+            <p>Quick turnaround on most prescriptions</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">💎</div>
+            <h3>Luxury Eyewear</h3>
+            <p>High-end fashion and luxury brands</p>
+          </div>
         </div>
-
-        <div className="feature">
-          <h2>Eye Care</h2>
-          <p>Comprehensive eye examinations and consultations</p>
+      </section>
+      
+      <section className="featured-products">
+        <h2>Featured Collections</h2>
+        <div className="product-preview">
+          <Link href="/products" className="preview-card">
+            <div className="preview-content">
+              <h3>Designer Sunglasses</h3>
+              <p>View Collection →</p>
+            </div>
+          </Link>
+          <Link href="/products" className="preview-card">
+            <div className="preview-content">
+              <h3>Premium Eyeglasses</h3>
+              <p>View Collection →</p>
+            </div>
+          </Link>
         </div>
-      </div>
-
-      <div className="cta-section">
-        <Link href="/book-appointment" className="cta-button">Book Appointment</Link>
-        <Link href="/manager" className="secondary-button">Store Manager</Link>
-      </div>
+      </section>
     </div>
   );
 }
