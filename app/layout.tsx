@@ -6,8 +6,8 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'OptiShop Manager',
-  description: 'Optical Shop Management System',
+  title: 'Vision Plus Optical',
+  description: 'Your trusted partner for quality eyewear',
 };
 
 export default function RootLayout({
@@ -21,25 +21,28 @@ export default function RootLayout({
         <nav className="navbar">
           <div className="nav-content">
             <Link href="/" className="logo">
-              OptiShop
+              Vision Plus
             </Link>
             <div className="nav-links">
               <Link href="/" className="nav-link">
                 Home
               </Link>
-              <Link href="/products" className="nav-link">
-                Products
+              <Link href="/about" className="nav-link">
+                About
               </Link>
-              <Link href="/receipts" className="nav-link">
-                New Receipt
+              <Link href="/services" className="nav-link">
+                Services
               </Link>
-              <Link href="/history" className="nav-link">
-                History
+              <Link href="/contact" className="nav-link">
+                Contact
+              </Link>
+              <Link href="/manager" className="nav-link manager-link">
+                Manager
               </Link>
             </div>
           </div>
         </nav>
-        <main className="container">{children}</main>
+        <main>{children}</main>
       </body>
     </html>
   );

@@ -85,6 +85,47 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+}
+
+.back-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  margin-top: 2rem;
+}
+
+.back-button:hover {
+  background: var(--primary-dark);
+}
+
+.manager-link {
+  background: var(--accent);
+  color: white !important;
+}
+
+.manager-link:hover {
+  background: #0D9668 !important;
+}
+
+.form-container, .history-container {
+  margin-top: 2rem;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
