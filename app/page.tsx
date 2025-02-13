@@ -20,7 +20,7 @@ export default function Home() {
         </div>
         <div className="hero-image">
           <Image
-            src="/images/hero/hero-glasses.jpg"
+            src="https://placehold.co/600x400/7C3AED/FFFFFF/png?text=Luxury+Eyewear"
             alt="Luxury Eyewear"
             width={600}
             height={400}
@@ -36,7 +36,7 @@ export default function Home() {
           {['rayban', 'oakley', 'gucci', 'prada'].map((brand) => (
             <div key={brand} className="brand-item">
               <Image
-                src={`/images/brands/${brand}.png`}
+                src={`https://placehold.co/120x60/666666/FFFFFF/png?text=${brand}`}
                 alt={brand}
                 width={120}
                 height={60}
@@ -59,7 +59,7 @@ export default function Home() {
             <Link href="/products" key={product.name} className="product-card">
               <div className="product-image">
                 <Image
-                  src={product.image}
+                  src={`https://placehold.co/300x200/8B5CF6/FFFFFF/png?text=${encodeURIComponent(product.name)}`}
                   alt={product.name}
                   width={300}
                   height={200}
