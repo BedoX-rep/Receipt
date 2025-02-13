@@ -20,7 +20,7 @@ export default function Home() {
         </div>
         <div className="hero-image">
           <Image
-            src="/hero-glasses.jpg"
+            src="/images/hero/hero-glasses.jpg"
             alt="Luxury Eyewear"
             width={600}
             height={400}
@@ -36,7 +36,7 @@ export default function Home() {
           {['rayban', 'oakley', 'gucci', 'prada'].map((brand) => (
             <div key={brand} className="brand-item">
               <Image
-                src={`/brands/${brand}.png`}
+                src={`/images/brands/${brand}.png`}
                 alt={brand}
                 width={120}
                 height={60}
