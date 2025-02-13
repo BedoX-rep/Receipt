@@ -19,12 +19,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <nav className="navbar">
-          <div className="logo">OptiManager</div>
+          <Link href="/" className="logo">
+            <span className="logo-gradient">OptiManager</span>
+          </Link>
           <div className="nav-links">
-            <Link href="/">Home</Link>
-            <Link href="/products">Products</Link>
-            <Link href="/receipts">Receipts</Link>
-            <Link href="/history">History</Link>
+            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/products" className="nav-link">Products</Link>
+            <Link href="/receipts" className="nav-link">Receipts</Link>
+            <Link href="/history" className="nav-link">History</Link>
           </div>
         </nav>
         <main className="main-content">
