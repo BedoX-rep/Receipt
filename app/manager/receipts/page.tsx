@@ -10,10 +10,33 @@ interface Product {
   quantity: number;
 }
 
+interface Prescription {
+  sph: string;
+  cyl: string;
+  axe: string;
+}
+
+interface Receipt {
+  date: string;
+  clientName: string;
+  clientPhone: string;
+  rightEye: Prescription;
+  leftEye: Prescription;
+  products: Product[];
+  discount: number;
+  numericalDiscount: number;
+  advancePayment: number;
+  total: number;
+  balanceDue: number;
+}
+
 export default function Receipts() {
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
+  const [rightEye, setRightEye] = useState<Prescription>({ sph: '', cyl: '', axe: '' });
+  const [leftEye, setLeftEye] = useState<Prescription>({ sph: '', cyl: '', axe: '' });
   const [products, setProducts] = useState<Product[]>([]);
+  const [numericalDiscount, setNumericalDiscount] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [advancePayment, setAdvancePayment] = useState(0);
 

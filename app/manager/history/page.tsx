@@ -4,12 +4,30 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from '../../page.module.css';
 
+interface Prescription {
+  sph: string;
+  cyl: string;
+  axe: string;
+}
+
+interface Product {
+  name: string;
+  price: number;
+  quantity: number;
+}
+
 interface Receipt {
   id: string;
   date: string;
   clientName: string;
-  total: number;
+  clientPhone: string;
+  rightEye: Prescription;
+  leftEye: Prescription;
+  products: Product[];
   discount: number;
+  numericalDiscount: number;
+  advancePayment: number;
+  total: number;
   balanceDue: number;
 }
 
