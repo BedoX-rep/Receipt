@@ -123,10 +123,16 @@ export default function Receipts() {
     };
 
     try {
-      const { error } = await supabase.from('receipts').insert([receipt]);
-      if (error) throw error;
-
-      // Generate PDF
+      // First save to database
+      const { data: savedReceipt, error: saveError } = await supabase
+        .from('receipts')
+        .insert([receipt])
+        .select()
+        .single();
+        
+      if (saveError) throw saveError;
+      
+      // Then generate PDF
       const response = await fetch('/api/receipts/generate-pdf', {
         method: 'POST',
         headers: {

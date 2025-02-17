@@ -3,8 +3,13 @@ import { NextResponse } from 'next/server';
 import PDFDocument from 'pdfkit';
 
 export async function POST(request: Request) {
+  const chunks: Buffer[] = [];
+  
   try {
     const rawReceipt = await request.json();
+    if (!rawReceipt) {
+      throw new Error('No receipt data provided');
+    }
     const receipt = {
       date: rawReceipt.date || new Date().toISOString(),
       client_name: rawReceipt.client_name || 'Walk-in Customer',
