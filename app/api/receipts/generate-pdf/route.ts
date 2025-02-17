@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       return new Promise((resolve, reject) => {
         doc.on('end', () => {
           const pdfBuffer = Buffer.concat(chunks);
-          resolve(new NextResponse(pdfBuffer, {
+          resolve(new Response(pdfBuffer, {
             headers: {
               'Content-Type': 'application/pdf',
               'Content-Disposition': 'attachment; filename=receipt.pdf'
