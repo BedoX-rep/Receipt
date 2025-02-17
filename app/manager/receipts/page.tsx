@@ -106,7 +106,7 @@ export default function Receipts() {
       alert('Please add at least one product');
       return;
     }
-    
+
     const total = calculateTotal();
     const receipt: Receipt = {
       date: new Date().toISOString(),
@@ -148,7 +148,7 @@ export default function Receipts() {
       document.body.removeChild(a);
 
       alert('Receipt saved and PDF generated successfully');
-      
+
       // Reset form
       setClientName('');
       setClientPhone('');
