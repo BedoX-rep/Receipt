@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 import styles from '../../page.module.css';
@@ -38,20 +38,34 @@ export default function Receipts() {
   const [rightEye, setRightEye] = useState<Prescription>({ sph: '', cyl: '', axe: '' });
   const [leftEye, setLeftEye] = useState<Prescription>({ sph: '', cyl: '', axe: '' });
   const [products, setProducts] = useState<Product[]>([]);
-  const [customProduct, setCustomProduct] = useState({ name: '', price: 0 });
+  const [existingProducts, setExistingProducts] = useState<{name: string, price: number}[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState({ name: '', price: 0, quantity: 1 });
   const [discount, setDiscount] = useState(0);
   const [numericalDiscount, setNumericalDiscount] = useState(0);
   const [advancePayment, setAdvancePayment] = useState(0);
 
-  const addProduct = async () => {
-    const newProduct = {
-      name: customProduct.name,
-      price: customProduct.price,
-      quantity: 1,
-      total: customProduct.price
-    };
-    setProducts([...products, newProduct]);
-    setCustomProduct({ name: '', price: 0 });
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      if (response.ok) {
+        const data = await response.json();
+        setExistingProducts(data);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  const addProduct = () => {
+    if (selectedProduct.name && selectedProduct.price > 0 && selectedProduct.quantity > 0) {
+      const total = selectedProduct.price * selectedProduct.quantity;
+      setProducts([...products, { ...selectedProduct, total }]);
+      setSelectedProduct({ name: '', price: 0, quantity: 1 });
+    }
   };
 
   const addTax = () => {
@@ -60,30 +74,14 @@ export default function Receipts() {
       const amount = parseFloat(baseAmount);
       if (!isNaN(amount)) {
         const tax = amount * 0.10;
-        const taxProduct = {
+        setProducts([...products, {
           name: 'Assurance Tax',
           price: tax,
           quantity: 1,
           total: tax
-        };
-        setProducts([...products, taxProduct]);
+        }]);
       }
     }
-  };
-
-  const updateProduct = (index: number, field: keyof Product, value: number | string) => {
-    const updatedProducts = [...products];
-    const product = { ...updatedProducts[index] };
-    
-    if (field === 'quantity' || field === 'price') {
-      product[field] = typeof value === 'number' ? value : parseFloat(value as string);
-      product.total = product.price * product.quantity;
-    } else {
-      product[field] = value;
-    }
-    
-    updatedProducts[index] = product;
-    setProducts(updatedProducts);
   };
 
   const removeProduct = (index: number) => {
@@ -135,162 +133,230 @@ export default function Receipts() {
     }
   };
 
+  const handleProductSelect = (name: string) => {
+    const product = existingProducts.find(p => p.name === name);
+    if (product) {
+      setSelectedProduct({ ...selectedProduct, name: product.name, price: product.price });
+    }
+  };
+
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Generate Receipt</h1>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <h2>Client Information</h2>
-          <input
-            type="text"
-            placeholder="Client Name"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            required
-          />
-          <input
-            type="tel"
-            placeholder="Phone"
-            value={clientPhone}
-            onChange={(e) => setClientPhone(e.target.value)}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <h2>Prescription</h2>
-          <div className={styles.prescriptionGrid}>
-            <div>
-              <h3>Right Eye</h3>
-              <input
-                type="text"
-                placeholder="SPH"
-                value={rightEye.sph}
-                onChange={(e) => setRightEye({...rightEye, sph: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="CYL"
-                value={rightEye.cyl}
-                onChange={(e) => setRightEye({...rightEye, cyl: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="AXE"
-                value={rightEye.axe}
-                onChange={(e) => setRightEye({...rightEye, axe: e.target.value})}
-              />
-            </div>
-            <div>
-              <h3>Left Eye</h3>
-              <input
-                type="text"
-                placeholder="SPH"
-                value={leftEye.sph}
-                onChange={(e) => setLeftEye({...leftEye, sph: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="CYL"
-                value={leftEye.cyl}
-                onChange={(e) => setLeftEye({...leftEye, cyl: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="AXE"
-                value={leftEye.axe}
-                onChange={(e) => setLeftEye({...leftEye, axe: e.target.value})}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.formGroup}>
-          <h2>Products</h2>
-          <div className={styles.productInput}>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Generate Receipt</h1>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Client Information */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Client Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               type="text"
-              placeholder="Product name"
-              value={customProduct.name}
-              onChange={(e) => setCustomProduct({...customProduct, name: e.target.value})}
+              placeholder="Client Name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="w-full p-2 border rounded"
+              required
             />
             <input
-              type="number"
-              placeholder="Price"
-              value={customProduct.price || ''}
-              onChange={(e) => setCustomProduct({...customProduct, price: parseFloat(e.target.value)})}
+              type="tel"
+              placeholder="Phone"
+              value={clientPhone}
+              onChange={(e) => setClientPhone(e.target.value)}
+              className="w-full p-2 border rounded"
             />
-            <button type="button" onClick={addProduct}>Add Product</button>
-            <button type="button" onClick={addTax}>Add Tax</button>
           </div>
+        </div>
 
-          {products.map((product, index) => (
-            <div key={index} className={styles.productRow}>
-              <input
-                type="text"
-                value={product.name}
-                onChange={(e) => updateProduct(index, 'name', e.target.value)}
-                readOnly={product.name === 'Assurance Tax'}
-              />
-              <input
-                type="number"
-                value={product.price}
-                onChange={(e) => updateProduct(index, 'price', parseFloat(e.target.value))}
-                readOnly={product.name === 'Assurance Tax'}
-              />
-              <input
-                type="number"
-                value={product.quantity}
-                onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value))}
-                min="1"
-              />
-              <span>${product.total.toFixed(2)}</span>
-              <button type="button" onClick={() => removeProduct(index)}>Remove</button>
+        {/* Prescription */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Prescription</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-medium mb-2">Right Eye</h3>
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  type="text"
+                  placeholder="SPH"
+                  value={rightEye.sph}
+                  onChange={(e) => setRightEye({...rightEye, sph: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="CYL"
+                  value={rightEye.cyl}
+                  onChange={(e) => setRightEye({...rightEye, cyl: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="AXE"
+                  value={rightEye.axe}
+                  onChange={(e) => setRightEye({...rightEye, axe: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
             </div>
-          ))}
-        </div>
-
-        <div className={styles.formGroup}>
-          <h2>Payment Details</h2>
-          <div>
-            <label>Discount (%):</label>
-            <input
-              type="number"
-              value={discount}
-              onChange={(e) => setDiscount(parseFloat(e.target.value))}
-              min="0"
-              max="100"
-            />
-          </div>
-          <div>
-            <label>Numerical Discount ($):</label>
-            <input
-              type="number"
-              value={numericalDiscount}
-              onChange={(e) => setNumericalDiscount(parseFloat(e.target.value))}
-              min="0"
-            />
-          </div>
-          <div>
-            <label>Advance Payment:</label>
-            <input
-              type="number"
-              value={advancePayment}
-              onChange={(e) => setAdvancePayment(parseFloat(e.target.value))}
-              min="0"
-            />
+            <div>
+              <h3 className="font-medium mb-2">Left Eye</h3>
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  type="text"
+                  placeholder="SPH"
+                  value={leftEye.sph}
+                  onChange={(e) => setLeftEye({...leftEye, sph: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="CYL"
+                  value={leftEye.cyl}
+                  onChange={(e) => setLeftEye({...leftEye, cyl: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="AXE"
+                  value={leftEye.axe}
+                  onChange={(e) => setLeftEye({...leftEye, axe: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className={styles.summary}>
-          <p>Total: ${calculateTotal().toFixed(2)}</p>
-          <p>Balance Due: ${(calculateTotal() - advancePayment).toFixed(2)}</p>
+        {/* Products */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Products</h2>
+          <div className="flex gap-4 mb-4">
+            <select
+              value={selectedProduct.name}
+              onChange={(e) => handleProductSelect(e.target.value)}
+              className="flex-1 p-2 border rounded"
+            >
+              <option value="">Select Product</option>
+              {existingProducts.map((product) => (
+                <option key={product.name} value={product.name}>
+                  {product.name} - ${product.price}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              placeholder="Quantity"
+              value={selectedProduct.quantity}
+              onChange={(e) => setSelectedProduct({...selectedProduct, quantity: parseInt(e.target.value) || 1})}
+              min="1"
+              className="w-20 p-2 border rounded"
+            />
+            <button
+              type="button"
+              onClick={addProduct}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={addTax}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              Add Tax
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left">Product</th>
+                  <th className="px-4 py-2 text-left">Quantity</th>
+                  <th className="px-4 py-2 text-left">Price</th>
+                  <th className="px-4 py-2 text-left">Total</th>
+                  <th className="px-4 py-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((product, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="px-4 py-2">{product.name}</td>
+                    <td className="px-4 py-2">{product.quantity}</td>
+                    <td className="px-4 py-2">${product.price.toFixed(2)}</td>
+                    <td className="px-4 py-2">${product.total.toFixed(2)}</td>
+                    <td className="px-4 py-2">
+                      <button
+                        type="button"
+                        onClick={() => removeProduct(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <button type="submit" className={styles.submitButton}>Generate Receipt</button>
+        {/* Payment Details */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Payment Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Discount (%)</label>
+              <input
+                type="number"
+                value={discount}
+                onChange={(e) => setDiscount(parseFloat(e.target.value))}
+                min="0"
+                max="100"
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Numerical Discount ($)</label>
+              <input
+                type="number"
+                value={numericalDiscount}
+                onChange={(e) => setNumericalDiscount(parseFloat(e.target.value))}
+                min="0"
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Advance Payment</label>
+              <input
+                type="number"
+                value={advancePayment}
+                onChange={(e) => setAdvancePayment(parseFloat(e.target.value))}
+                min="0"
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 text-right">
+            <p className="text-lg font-semibold">Total: ${calculateTotal().toFixed(2)}</p>
+            <p className="text-lg font-semibold">Balance Due: ${(calculateTotal() - advancePayment).toFixed(2)}</p>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-4">
+          <Link
+            href="/manager"
+            className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Generate Receipt
+          </button>
+        </div>
       </form>
-      <Link href="/manager" className={styles.backButton}>
-        Back to Dashboard
-      </Link>
     </div>
   );
 }
