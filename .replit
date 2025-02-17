@@ -1,5 +1,5 @@
 run = "npm run dev"
-modules = ["python-3.12", "nodejs-20", "web"]
+modules = ["nodejs-20", "python-3.12", "web"]
 hidden = [".config", "package-lock.json", ".next", ".swc"]
 
 [nix]
