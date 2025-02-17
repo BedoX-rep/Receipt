@@ -132,12 +132,12 @@ export default function Receipts() {
           right_eye: JSON.stringify(receipt.right_eye),
           left_eye: JSON.stringify(receipt.left_eye)
         }]);
-        
+
       if (saveError) {
         console.error('Supabase error:', saveError);
         throw saveError;
       }
-      
+
       // Then generate PDF
       const response = await fetch('/api/receipts/generate-pdf', {
         method: 'POST',
@@ -405,28 +405,28 @@ export default function Receipts() {
 
                 const calculatedTotal = calculateTotal();
                 const calculatedBalanceDue = calculatedTotal - (Number(advancePayment) || 0);
-                
+
                 // Structure the data to match the database schema exactly
                 const receiptData = {
                   date: new Date().toISOString(),
                   client_name: clientName || 'Walk-in Customer',
                   client_phone: clientPhone || '',
-                  right_eye: {
+                  right_eye: JSON.stringify({
                     sph: rightEye.sph || '',
                     cyl: rightEye.cyl || '',
                     axe: rightEye.axe || ''
-                  },
-                  left_eye: {
+                  }),
+                  left_eye: JSON.stringify({
                     sph: leftEye.sph || '',
                     cyl: leftEye.cyl || '',
                     axe: leftEye.axe || ''
-                  },
-                  products: products.map(p => ({
+                  }),
+                  products: JSON.stringify(products.map(p => ({
                     name: p.name,
                     price: Number(p.price),
                     quantity: Number(p.quantity),
                     total: Number(p.total)
-                  })),
+                  }))),
                   discount: Number(discount) || 0,
                   numerical_discount: Number(numericalDiscount) || 0,
                   advance_payment: Number(advancePayment) || 0,
@@ -440,14 +440,14 @@ export default function Receipts() {
                 const { error: saveError } = await supabase
                   .from('receipts')
                   .insert([receiptData]);
-                
+
                 if (saveError) {
                   console.error('Supabase error:', saveError);
                   throw saveError;
                 }
-                
+
                 alert('Receipt saved successfully');
-                
+
                 // Reset form after successful save
                 setClientName('');
                 setClientPhone('');
