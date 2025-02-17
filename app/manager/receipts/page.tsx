@@ -398,14 +398,19 @@ export default function Receipts() {
             type="button"
             onClick={async () => {
               try {
+                if (products.length === 0) {
+                  alert('Please add at least one product');
+                  return;
+                }
+
                 const total = calculateTotal();
-                const receipt = {
+                const receiptData = {
                   date: new Date().toISOString(),
                   client_name: clientName || 'Walk-in Customer',
-                  client_phone: clientPhone,
-                  right_eye: rightEye || { sph: '', cyl: '', axe: '' },
-                  left_eye: leftEye || { sph: '', cyl: '', axe: '' },
-                  products: products || [],
+                  client_phone: clientPhone || '',
+                  right_eye: JSON.stringify(rightEye || { sph: '', cyl: '', axe: '' }),
+                  left_eye: JSON.stringify(leftEye || { sph: '', cyl: '', axe: '' }),
+                  products: JSON.stringify(products),
                   discount: Number(discount) || 0,
                   numerical_discount: Number(numericalDiscount) || 0,
                   advance_payment: Number(advancePayment) || 0,
@@ -415,15 +420,24 @@ export default function Receipts() {
 
                 const { error: saveError } = await supabase
                   .from('receipts')
-                  .insert([{
-                    ...receipt,
-                    products: JSON.stringify(receipt.products),
-                    right_eye: JSON.stringify(receipt.right_eye),
-                    left_eye: JSON.stringify(receipt.left_eye)
-                  }]);
+                  .insert([receiptData]);
                 
-                if (saveError) throw saveError;
+                if (saveError) {
+                  console.error('Supabase error:', saveError);
+                  throw saveError;
+                }
+                
                 alert('Receipt saved successfully');
+                
+                // Reset form after successful save
+                setClientName('');
+                setClientPhone('');
+                setRightEye({ sph: '', cyl: '', axe: '' });
+                setLeftEye({ sph: '', cyl: '', axe: '' });
+                setProducts([]);
+                setDiscount(0);
+                setNumericalDiscount(0);
+                setAdvancePayment(0);
               } catch (error) {
                 console.error('Error saving receipt:', error);
                 alert('Error saving receipt');
