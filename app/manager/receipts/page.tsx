@@ -404,7 +404,6 @@ export default function Receipts() {
                 }
 
                 const total = calculateTotal();
-                const total = calculateTotal();
                 const balanceDue = total - (Number(advancePayment) || 0);
                 
                 const receiptData = {
