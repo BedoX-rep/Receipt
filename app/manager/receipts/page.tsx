@@ -135,7 +135,10 @@ export default function Receipts() {
         body: JSON.stringify(receipt),
       });
 
-      if (!response.ok) throw new Error('Failed to generate PDF');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'Failed to generate PDF');
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
