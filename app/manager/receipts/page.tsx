@@ -404,18 +404,21 @@ export default function Receipts() {
                 }
 
                 const total = calculateTotal();
+                const total = calculateTotal();
+                const balanceDue = total - (Number(advancePayment) || 0);
+                
                 const receiptData = {
                   date: new Date().toISOString(),
                   client_name: clientName || 'Walk-in Customer',
                   client_phone: clientPhone || '',
-                  right_eye: JSON.stringify(rightEye || { sph: '', cyl: '', axe: '' }),
-                  left_eye: JSON.stringify(leftEye || { sph: '', cyl: '', axe: '' }),
-                  products: JSON.stringify(products),
+                  right_eye: { sph: rightEye.sph || '', cyl: rightEye.cyl || '', axe: rightEye.axe || '' },
+                  left_eye: { sph: leftEye.sph || '', cyl: leftEye.cyl || '', axe: leftEye.axe || '' },
+                  products: products,
                   discount: Number(discount) || 0,
                   numerical_discount: Number(numericalDiscount) || 0,
                   advance_payment: Number(advancePayment) || 0,
-                  total: Number(total) || 0,
-                  balance_due: Number(total - advancePayment) || 0
+                  total: total,
+                  balance_due: balanceDue
                 };
 
                 const { error: saveError } = await supabase
