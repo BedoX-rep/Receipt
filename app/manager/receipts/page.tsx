@@ -111,15 +111,15 @@ export default function Receipts() {
     const receipt: Receipt = {
       date: new Date().toISOString(),
       client_name: clientName || 'Walk-in Customer',
-      client_phone: clientPhone || 'N/A',
-      right_eye: rightEye,
-      left_eye: leftEye,
-      products: products,
-      discount: discount,
-      numerical_discount: numericalDiscount,
-      advance_payment: advancePayment,
-      total: total,
-      balance_due: total - advancePayment
+      client_phone: clientPhone,
+      right_eye: rightEye || { sph: '', cyl: '', axe: '' },
+      left_eye: leftEye || { sph: '', cyl: '', axe: '' },
+      products: products || [],
+      discount: Number(discount) || 0,
+      numerical_discount: Number(numericalDiscount) || 0,
+      advance_payment: Number(advancePayment) || 0,
+      total: Number(total) || 0,
+      balance_due: Number(total - advancePayment) || 0
     };
 
     try {

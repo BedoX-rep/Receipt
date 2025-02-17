@@ -4,7 +4,20 @@ import PDFDocument from 'pdfkit';
 
 export async function POST(request: Request) {
   try {
-    const receipt = await request.json();
+    const rawReceipt = await request.json();
+    const receipt = {
+      date: rawReceipt.date || new Date().toISOString(),
+      client_name: rawReceipt.client_name || 'Walk-in Customer',
+      client_phone: rawReceipt.client_phone || 'N/A',
+      right_eye: rawReceipt.right_eye || { sph: '', cyl: '', axe: '' },
+      left_eye: rawReceipt.left_eye || { sph: '', cyl: '', axe: '' },
+      products: Array.isArray(rawReceipt.products) ? rawReceipt.products : [],
+      discount: Number(rawReceipt.discount) || 0,
+      numerical_discount: Number(rawReceipt.numerical_discount) || 0,
+      advance_payment: Number(rawReceipt.advance_payment) || 0,
+      total: Number(rawReceipt.total) || 0,
+      balance_due: Number(rawReceipt.balance_due) || 0
+    };
     
     const doc = new PDFDocument({
       size: 'A4',
