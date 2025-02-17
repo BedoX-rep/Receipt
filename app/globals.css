@@ -579,3 +579,93 @@ body {
 .grid {
   animation: fadeIn 0.6s ease-out;
 }
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.modern-input {
+  @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200;
+  background-color: #f8fafc;
+}
+
+.modern-input:focus {
+  background-color: white;
+}
+
+.modern-select {
+  @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white;
+}
+
+.modern-card {
+  @apply bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-200;
+}
+
+.modern-button {
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105;
+}
+
+.modern-button-primary {
+  @apply modern-button bg-indigo-600 text-white hover:bg-indigo-700;
+}
+
+.modern-button-secondary {
+  @apply modern-button bg-gray-500 text-white hover:bg-gray-600;
+}
+
+.modern-button-success {
+  @apply modern-button bg-green-500 text-white hover:bg-green-600;
+}
+
+.modern-button-danger {
+  @apply modern-button bg-red-500 text-white hover:bg-red-600;
+}
+
+.modern-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.modern-table th {
+  @apply px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.modern-table td {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+.modern-table tr {
+  @apply hover:bg-gray-50 transition-colors duration-150;
+}
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  @apply bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 transform transition-all duration-300;
+  animation: slideIn 0.3s ease-out;
+}

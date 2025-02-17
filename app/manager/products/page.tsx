@@ -38,8 +38,6 @@ export default function ProductManager() {
       price: parseFloat(newProduct.price)
     };
     
-    const supabase = createClient();
-    
     if (editingProduct) {
       const { error } = await supabase
         .from('products')
@@ -67,7 +65,6 @@ export default function ProductManager() {
 
   const handleDelete = async (name: string) => {
     if (confirm('Are you sure you want to delete this product?')) {
-      const supabase = createClient();
       const { error } = await supabase
         .from('products')
         .delete()
@@ -81,75 +78,81 @@ export default function ProductManager() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Product Management</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Add Product
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 py-8 animate-fade-in">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
+            <p className="mt-2 text-gray-600">Manage your product inventory</p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="modern-button-primary"
+          >
+            Add Product
+          </button>
+        </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <table className="min-w-full">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Product Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Price
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {products.map((product) => (
-              <tr key={product.name}>
-                <td className="px-6 py-4 whitespace-nowrap">{product.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  ${product.price.toFixed(2)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button
-                    onClick={() => {
-                      setEditingProduct(product);
-                      setNewProduct({
-                        name: product.name,
-                        price: product.price.toString()
-                      });
-                      setShowModal(true);
-                    }}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.name)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="modern-card animate-slide-in">
+          <div className="overflow-x-auto">
+            <table className="modern-table">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Price</th>
+                  <th className="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {products.map((product) => (
+                  <tr key={product.name}>
+                    <td>{product.name}</td>
+                    <td>${product.price.toFixed(2)}</td>
+                    <td className="text-right space-x-3">
+                      <button
+                        onClick={() => {
+                          setEditingProduct(product);
+                          setNewProduct({
+                            name: product.name,
+                            price: product.price.toString()
+                          });
+                          setShowModal(true);
+                        }}
+                        className="text-indigo-600 hover:text-indigo-900 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.name)}
+                        className="text-red-600 hover:text-red-900 font-medium"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <Link
+          href="/manager"
+          className="inline-block mt-8 text-indigo-600 hover:text-indigo-900 font-medium"
+        >
+          ← Back to Dashboard
+        </Link>
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">
-              {editingProduct ? 'Edit Product' : 'Add Product'}
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 className="text-2xl font-bold mb-6">
+              {editingProduct ? 'Edit Product' : 'Add New Product'}
             </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Product Name
                 </label>
                 <input
@@ -158,12 +161,12 @@ export default function ProductManager() {
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, name: e.target.value })
                   }
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                  className="modern-input"
                   required
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Price
                 </label>
                 <input
@@ -173,11 +176,11 @@ export default function ProductManager() {
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, price: e.target.value })
                   }
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                  className="modern-input"
                   required
                 />
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={() => {
@@ -185,13 +188,13 @@ export default function ProductManager() {
                     setEditingProduct(null);
                     setNewProduct({ name: '', price: '' });
                   }}
-                  className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
+                  className="modern-button-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  className="modern-button-primary"
                 >
                   {editingProduct ? 'Save Changes' : 'Add Product'}
                 </button>
@@ -200,10 +203,6 @@ export default function ProductManager() {
           </div>
         </div>
       )}
-
-      <Link href="/manager" className="block mt-6 text-blue-500 hover:underline">
-        Back to Dashboard
-      </Link>
     </div>
   );
 }
