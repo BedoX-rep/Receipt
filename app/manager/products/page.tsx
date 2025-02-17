@@ -14,15 +14,14 @@ export default function ProductManager() {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState({ name: '', price: '' });
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*');
+    const { data, error } = await supabase.from('products').select('*');
     if (error) {
       console.error('Error fetching products:', error);
       return;
@@ -77,8 +76,12 @@ export default function ProductManager() {
     }
   };
 
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 animate-fade-in">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -89,26 +92,38 @@ export default function ProductManager() {
             onClick={() => setShowModal(true)}
             className="modern-button-primary"
           >
-            Add Product
+            Add New Product
           </button>
         </div>
 
-        <div className="modern-card animate-slide-in">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="modern-input max-w-md"
+              />
+            </div>
+          </div>
+
           <div className="overflow-x-auto">
-            <table className="modern-table">
-              <thead>
+            <table className="w-full">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th>Product Name</th>
-                  <th>Price</th>
-                  <th className="text-right">Actions</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Product Name</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Price</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {products.map((product) => (
-                  <tr key={product.name}>
-                    <td>{product.name}</td>
-                    <td>${product.price.toFixed(2)}</td>
-                    <td className="text-right space-x-3">
+              <tbody className="divide-y divide-gray-200">
+                {filteredProducts.map((product) => (
+                  <tr key={product.name} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-900">{product.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">${product.price.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right space-x-3">
                       <button
                         onClick={() => {
                           setEditingProduct(product);
@@ -118,13 +133,13 @@ export default function ProductManager() {
                           });
                           setShowModal(true);
                         }}
-                        className="text-indigo-600 hover:text-indigo-900 font-medium"
+                        className="text-indigo-600 hover:text-indigo-900 font-medium text-sm"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(product.name)}
-                        className="text-red-600 hover:text-red-900 font-medium"
+                        className="text-red-600 hover:text-red-900 font-medium text-sm"
                       >
                         Delete
                       </button>
@@ -138,15 +153,15 @@ export default function ProductManager() {
 
         <Link
           href="/manager"
-          className="inline-block mt-8 text-indigo-600 hover:text-indigo-900 font-medium"
+          className="text-indigo-600 hover:text-indigo-900 font-medium flex items-center"
         >
           ← Back to Dashboard
         </Link>
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
             <h2 className="text-2xl font-bold mb-6">
               {editingProduct ? 'Edit Product' : 'Add New Product'}
             </h2>
@@ -180,7 +195,7 @@ export default function ProductManager() {
                   required
                 />
               </div>
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-end space-x-4 mt-8">
                 <button
                   type="button"
                   onClick={() => {
