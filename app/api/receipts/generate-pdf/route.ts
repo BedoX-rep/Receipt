@@ -55,24 +55,24 @@ export async function POST(request: Request) {
       doc.fontSize(14).text('Products');
       doc.fontSize(12);
       const products = receipt.products || [];
-      const subtotal = products.reduce((sum, product) => sum + (product.total || 0), 0);
+      const subtotal = products.reduce((sum, product) => sum + (Number(product.total) || 0), 0);
       
       if (Array.isArray(products)) {
         products.forEach(product => {
-          const price = product.price || 0;
-          const quantity = product.quantity || 1;
-          const total = product.total || (price * quantity);
+          const price = Number(product.price) || 0;
+          const quantity = Number(product.quantity) || 1;
+          const total = Number(product.total) || (price * quantity);
           doc.text(`${product.name || 'Unknown Product'} x${quantity} @ $${price.toFixed(2)} = $${total.toFixed(2)}`);
         });
       }
       doc.moveDown();
 
       // Calculate final total with discounts
-      const discount = receipt.discount || 0;
-      const numericalDiscount = receipt.numerical_discount || 0;
+      const discount = Number(receipt.discount) || 0;
+      const numericalDiscount = Number(receipt.numerical_discount) || 0;
       const percentageDiscount = subtotal * (discount / 100);
       const finalTotal = Math.max(subtotal - percentageDiscount - numericalDiscount, 0);
-      const advancePayment = receipt.advance_payment || 0;
+      const advancePayment = Number(receipt.advance_payment) || 0;
 
       // Totals
       doc.text(`Subtotal: $${subtotal.toFixed(2)}`);
