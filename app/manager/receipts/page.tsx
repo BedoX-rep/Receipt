@@ -404,51 +404,53 @@ export default function Receipts() {
                 }
 
                 const calculatedTotal = calculateTotal();
-                const calculatedBalanceDue = calculatedTotal - (Number(advancePayment) || 0);
+                const balanceDue = calculatedTotal - (Number(advancePayment) || 0);
 
-                // Structure the data to match the database schema exactly
                 const receiptData = {
                   date: new Date().toISOString(),
                   client_name: clientName || 'Walk-in Customer',
                   client_phone: clientPhone || '',
-                  right_eye: JSON.stringify({
+                  right_eye: {
                     sph: rightEye.sph || '',
                     cyl: rightEye.cyl || '',
                     axe: rightEye.axe || ''
-                  }),
-                  left_eye: JSON.stringify({
+                  },
+                  left_eye: {
                     sph: leftEye.sph || '',
                     cyl: leftEye.cyl || '',
                     axe: leftEye.axe || ''
-                  }),
-                  products: JSON.stringify(products.map(p => ({
+                  },
+                  products: products.map(p => ({
                     name: p.name,
-                    price: Number(p.price),
-                    quantity: Number(p.quantity),
-                    total: Number(p.total)
-                  }))),
+                    price: Number(p.price) || 0,
+                    quantity: Number(p.quantity) || 0,
+                    total: Number(p.total) || 0
+                  })),
                   discount: Number(discount) || 0,
                   numerical_discount: Number(numericalDiscount) || 0,
                   advance_payment: Number(advancePayment) || 0,
-                  total: Number(calculatedTotal),
-                  balance_due: Number(calculatedBalanceDue)
+                  total: calculatedTotal,
+                  balance_due: balanceDue
                 };
 
-                // Debug log
-                console.log('Saving receipt data:', receiptData);
-
-                const { error: saveError } = await supabase
+                const { data, error: saveError } = await supabase
                   .from('receipts')
-                  .insert([receiptData]);
+                  .insert([receiptData])
+                  .select()
+                  .single();
 
                 if (saveError) {
                   console.error('Supabase error:', saveError);
-                  throw saveError;
+                  throw new Error(saveError.message);
+                }
+
+                if (!data) {
+                  throw new Error('No data returned from insert');
                 }
 
                 alert('Receipt saved successfully');
 
-                // Reset form after successful save
+                // Reset form
                 setClientName('');
                 setClientPhone('');
                 setRightEye({ sph: '', cyl: '', axe: '' });
@@ -459,7 +461,7 @@ export default function Receipts() {
                 setAdvancePayment(0);
               } catch (error) {
                 console.error('Error saving receipt:', error);
-                alert('Error saving receipt');
+                alert(error instanceof Error ? error.message : 'Error saving receipt');
               }
             }}
             className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600"
