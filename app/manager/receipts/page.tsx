@@ -403,22 +403,39 @@ export default function Receipts() {
                   return;
                 }
 
-                const total = calculateTotal();
-                const balanceDue = total - (Number(advancePayment) || 0);
+                const calculatedTotal = calculateTotal();
+                const calculatedBalanceDue = calculatedTotal - (Number(advancePayment) || 0);
                 
+                // Structure the data to match the database schema exactly
                 const receiptData = {
                   date: new Date().toISOString(),
                   client_name: clientName || 'Walk-in Customer',
                   client_phone: clientPhone || '',
-                  right_eye: { sph: rightEye.sph || '', cyl: rightEye.cyl || '', axe: rightEye.axe || '' },
-                  left_eye: { sph: leftEye.sph || '', cyl: leftEye.cyl || '', axe: leftEye.axe || '' },
-                  products: products,
+                  right_eye: {
+                    sph: rightEye.sph || '',
+                    cyl: rightEye.cyl || '',
+                    axe: rightEye.axe || ''
+                  },
+                  left_eye: {
+                    sph: leftEye.sph || '',
+                    cyl: leftEye.cyl || '',
+                    axe: leftEye.axe || ''
+                  },
+                  products: products.map(p => ({
+                    name: p.name,
+                    price: Number(p.price),
+                    quantity: Number(p.quantity),
+                    total: Number(p.total)
+                  })),
                   discount: Number(discount) || 0,
                   numerical_discount: Number(numericalDiscount) || 0,
                   advance_payment: Number(advancePayment) || 0,
-                  total: total,
-                  balance_due: balanceDue
+                  total: Number(calculatedTotal),
+                  balance_due: Number(calculatedBalanceDue)
                 };
+
+                // Debug log
+                console.log('Saving receipt data:', receiptData);
 
                 const { error: saveError } = await supabase
                   .from('receipts')
