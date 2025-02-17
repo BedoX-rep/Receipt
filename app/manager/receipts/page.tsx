@@ -102,11 +102,16 @@ export default function Receipts() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (products.length === 0) {
+      alert('Please add at least one product');
+      return;
+    }
+    
     const total = calculateTotal();
     const receipt: Receipt = {
       date: new Date().toISOString(),
-      client_name: clientName,
-      client_phone: clientPhone,
+      client_name: clientName || 'Walk-in Customer',
+      client_phone: clientPhone || 'N/A',
       right_eye: rightEye,
       left_eye: leftEye,
       products: products,
@@ -118,12 +123,32 @@ export default function Receipts() {
     };
 
     try {
-      const supabase = createClient();
       const { error } = await supabase.from('receipts').insert([receipt]);
-
       if (error) throw error;
 
-      alert('Receipt saved successfully');
+      // Generate PDF
+      const response = await fetch('/api/receipts/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(receipt),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate PDF');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receipt-${new Date().getTime()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      alert('Receipt saved and PDF generated successfully');
+      
       // Reset form
       setClientName('');
       setClientPhone('');
@@ -134,8 +159,8 @@ export default function Receipts() {
       setNumericalDiscount(0);
       setAdvancePayment(0);
     } catch (error) {
-      console.error('Error saving receipt:', error);
-      alert('Error saving receipt');
+      console.error('Error processing receipt:', error);
+      alert('Error processing receipt');
     }
   };
 
