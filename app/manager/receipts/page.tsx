@@ -124,13 +124,19 @@ export default function Receipts() {
 
     try {
       // First save to database
-      const { data: savedReceipt, error: saveError } = await supabase
+      const { error: saveError } = await supabase
         .from('receipts')
-        .insert([receipt])
-        .select()
-        .single();
+        .insert([{
+          ...receipt,
+          products: JSON.stringify(receipt.products),
+          right_eye: JSON.stringify(receipt.right_eye),
+          left_eye: JSON.stringify(receipt.left_eye)
+        }]);
         
-      if (saveError) throw saveError;
+      if (saveError) {
+        console.error('Supabase error:', saveError);
+        throw saveError;
+      }
       
       // Then generate PDF
       const response = await fetch('/api/receipts/generate-pdf', {
