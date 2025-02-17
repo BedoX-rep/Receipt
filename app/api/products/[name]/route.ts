@@ -1,27 +1,41 @@
 
+import { createClient } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 
-const PRODUCTS_FILE = path.join(process.cwd(), 'data', 'products.json');
-
-export async function PUT(request: Request, { params }: { params: { name: string } }) {
-  const product = await request.json();
-  const products = JSON.parse(await fs.readFile(PRODUCTS_FILE, 'utf-8'));
-  const index = products.findIndex((p: any) => p.name === params.name);
+export async function PUT(
+  request: Request,
+  { params }: { params: { name: string } }
+) {
+  const supabase = createClient();
+  const updates = await request.json();
   
-  if (index === -1) {
-    return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+  const { data, error } = await supabase
+    .from('products')
+    .update(updates)
+    .eq('name', params.name)
+    .select();
+    
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
   
-  products[index] = product;
-  await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products));
-  return NextResponse.json(product);
+  return NextResponse.json(data[0]);
 }
 
-export async function DELETE(request: Request, { params }: { params: { name: string } }) {
-  const products = JSON.parse(await fs.readFile(PRODUCTS_FILE, 'utf-8'));
-  const filtered = products.filter((p: any) => p.name !== params.name);
-  await fs.writeFile(PRODUCTS_FILE, JSON.stringify(filtered));
-  return NextResponse.json({}, { status: 200 });
+export async function DELETE(
+  request: Request,
+  { params }: { params: { name: string } }
+) {
+  const supabase = createClient();
+  
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('name', params.name);
+    
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  
+  return new NextResponse(null, { status: 204 });
 }
