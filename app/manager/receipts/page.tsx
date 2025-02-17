@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
@@ -39,7 +38,7 @@ export default function Receipts() {
   const [leftEye, setLeftEye] = useState<Prescription>({ sph: '', cyl: '', axe: '' });
   const [products, setProducts] = useState<Product[]>([]);
   const [existingProducts, setExistingProducts] = useState<{name: string, price: number}[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState({ name: '', price: 0, quantity: 1 });
+  const [selectedProduct, setSelectedProduct] = useState<{name: string, price: number, quantity: number}>({ name: '', price: 0, quantity: 1 });
   const [discount, setDiscount] = useState(0);
   const [numericalDiscount, setNumericalDiscount] = useState(0);
   const [advancePayment, setAdvancePayment] = useState(0);
@@ -57,6 +56,13 @@ export default function Receipts() {
       }
     } catch (error) {
       console.error('Error fetching products:', error);
+    }
+  };
+
+  const handleProductSelect = (name: string) => {
+    const product = existingProducts.find(p => p.name === name);
+    if (product) {
+      setSelectedProduct({ name: product.name, price: product.price, quantity: 1 });
     }
   };
 
@@ -114,9 +120,9 @@ export default function Receipts() {
     try {
       const supabase = createClient();
       const { error } = await supabase.from('receipts').insert([receipt]);
-      
+
       if (error) throw error;
-      
+
       alert('Receipt saved successfully');
       // Reset form
       setClientName('');
@@ -133,12 +139,6 @@ export default function Receipts() {
     }
   };
 
-  const handleProductSelect = (name: string) => {
-    const product = existingProducts.find(p => p.name === name);
-    if (product) {
-      setSelectedProduct({ ...selectedProduct, name: product.name, price: product.price });
-    }
-  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
