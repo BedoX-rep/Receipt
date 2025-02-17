@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase';
 
 interface Product {
   name: string;
@@ -19,9 +20,13 @@ export default function ProductManager() {
   }, []);
 
   const fetchProducts = async () => {
-    const response = await fetch('/api/products');
-    const data = await response.json();
-    setProducts(data);
+    const supabase = createClient();
+    const { data, error } = await supabase.from('products').select('*');
+    if (error) {
+      console.error('Error fetching products:', error);
+      return;
+    }
+    setProducts(data || []);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,18 +37,25 @@ export default function ProductManager() {
       price: parseFloat(newProduct.price)
     };
     
+    const supabase = createClient();
+    
     if (editingProduct) {
-      await fetch(`/api/products/${editingProduct.name}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData)
-      });
+      const { error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('name', editingProduct.name);
+      if (error) {
+        console.error('Error updating product:', error);
+        return;
+      }
     } else {
-      await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData)
-      });
+      const { error } = await supabase
+        .from('products')
+        .insert([productData]);
+      if (error) {
+        console.error('Error adding product:', error);
+        return;
+      }
     }
     
     setShowModal(false);
@@ -54,7 +66,15 @@ export default function ProductManager() {
 
   const handleDelete = async (name: string) => {
     if (confirm('Are you sure you want to delete this product?')) {
-      await fetch(`/api/products/${name}`, { method: 'DELETE' });
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('name', name);
+      if (error) {
+        console.error('Error deleting product:', error);
+        return;
+      }
       fetchProducts();
     }
   };
