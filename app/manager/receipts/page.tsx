@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import styles from '../../page.module.css';
 
@@ -49,9 +49,9 @@ export default function Receipts() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products');
-      if (response.ok) {
-        const data = await response.json();
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) throw error;
+      if (data) {
         setExistingProducts(data);
       }
     } catch (error) {
