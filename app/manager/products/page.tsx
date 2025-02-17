@@ -2,7 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 interface Product {
   name: string;
@@ -20,8 +20,9 @@ export default function ProductManager() {
   }, []);
 
   const fetchProducts = async () => {
-    const supabase = createClient();
-    const { data, error } = await supabase.from('products').select('*');
+    const { data, error } = await supabase
+      .from('products')
+      .select('*');
     if (error) {
       console.error('Error fetching products:', error);
       return;
