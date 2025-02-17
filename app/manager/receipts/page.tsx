@@ -395,10 +395,100 @@ export default function Receipts() {
             Cancel
           </Link>
           <button
-            type="submit"
+            type="button"
+            onClick={async () => {
+              try {
+                const total = calculateTotal();
+                const receipt = {
+                  date: new Date().toISOString(),
+                  client_name: clientName || 'Walk-in Customer',
+                  client_phone: clientPhone,
+                  right_eye: rightEye || { sph: '', cyl: '', axe: '' },
+                  left_eye: leftEye || { sph: '', cyl: '', axe: '' },
+                  products: products || [],
+                  discount: Number(discount) || 0,
+                  numerical_discount: Number(numericalDiscount) || 0,
+                  advance_payment: Number(advancePayment) || 0,
+                  total: Number(total) || 0,
+                  balance_due: Number(total - advancePayment) || 0
+                };
+
+                const { error: saveError } = await supabase
+                  .from('receipts')
+                  .insert([{
+                    ...receipt,
+                    products: JSON.stringify(receipt.products),
+                    right_eye: JSON.stringify(receipt.right_eye),
+                    left_eye: JSON.stringify(receipt.left_eye)
+                  }]);
+                
+                if (saveError) throw saveError;
+                alert('Receipt saved successfully');
+              } catch (error) {
+                console.error('Error saving receipt:', error);
+                alert('Error saving receipt');
+              }
+            }}
+            className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Save Receipt
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                if (products.length === 0) {
+                  alert('Please add at least one product');
+                  return;
+                }
+
+                const total = calculateTotal();
+                const receipt = {
+                  date: new Date().toISOString(),
+                  client_name: clientName || 'Walk-in Customer',
+                  client_phone: clientPhone,
+                  right_eye: rightEye || { sph: '', cyl: '', axe: '' },
+                  left_eye: leftEye || { sph: '', cyl: '', axe: '' },
+                  products: products || [],
+                  discount: Number(discount) || 0,
+                  numerical_discount: Number(numericalDiscount) || 0,
+                  advance_payment: Number(advancePayment) || 0,
+                  total: Number(total) || 0,
+                  balance_due: Number(total - advancePayment) || 0
+                };
+
+                const response = await fetch('/api/receipts/generate-pdf', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(receipt),
+                });
+
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.details || 'Failed to generate PDF');
+                }
+
+                if (response.headers.get('Content-Type') === 'application/pdf') {
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `receipt-${new Date().getTime()}.pdf`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                }
+              } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF');
+              }
+            }}
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Generate Receipt
+            Generate PDF
           </button>
         </div>
       </form>
