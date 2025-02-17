@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -16,6 +15,7 @@ export default function ProductManager() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState({ name: '', price: '' });
   const [searchTerm, setSearchTerm] = useState('');
+  const [view, setView] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     fetchProducts();
@@ -32,6 +32,7 @@ export default function ProductManager() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const productData = {
       name: newProduct.name,
       price: parseFloat(newProduct.price)
@@ -81,47 +82,54 @@ export default function ProductManager() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-8">
+      <div className="max-w-7xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl"
+        >
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Product Inventory</h1>
-              <p className="text-gray-600">Manage your optical products inventory</p>
+              <h1 className="text-4xl font-bold text-white mb-2">Product Inventory</h1>
+              <p className="text-indigo-200">Manage your optical products with style</p>
+            </div>
+            <div className="flex gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                + Add Product
+              </motion.button>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-            >
-              + Add Product
-            </button>
+          <div className="mb-8">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-6 py-4 bg-white/5 border border-indigo-300/20 rounded-2xl text-white placeholder-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
+            />
           </div>
 
-          <div className="grid gap-4">
-            {filteredProducts.map((product) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-gray-200 rounded-lg p-4 flex justify-between items-center"
+                transition={{ delay: index * 0.1 }}
+                className="bg-white/5 backdrop-blur rounded-2xl p-6 border border-indigo-300/20 hover:border-indigo-300/40 transition-all duration-300"
               >
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">{product.name}</h3>
-                  <p className="text-gray-600">${product.price.toFixed(2)}</p>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-semibold text-white">{product.name}</h3>
+                  <span className="text-lg font-bold text-indigo-300">${product.price.toFixed(2)}</span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     onClick={() => {
                       setEditingProduct(product);
@@ -131,13 +139,13 @@ export default function ProductManager() {
                       });
                       setShowModal(true);
                     }}
-                    className="px-4 py-1 text-sm bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+                    className="px-4 py-2 bg-indigo-500/20 rounded-lg text-indigo-200 hover:bg-indigo-500/30 transition-colors"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(product.name)}
-                    className="px-4 py-1 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200"
+                    className="px-4 py-2 bg-red-500/20 rounded-lg text-red-200 hover:bg-red-500/30 transition-colors"
                   >
                     Delete
                   </button>
@@ -145,11 +153,11 @@ export default function ProductManager() {
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         <Link
           href="/manager"
-          className="inline-flex items-center mt-6 text-gray-600 hover:text-gray-900"
+          className="inline-flex items-center mt-8 text-indigo-200 hover:text-white transition-colors"
         >
           <span className="mr-2">←</span> Back to Dashboard
         </Link>
@@ -161,20 +169,20 @@ export default function ProductManager() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-indigo-300/20"
             >
-              <h2 className="text-2xl font-bold mb-4">
+              <h2 className="text-3xl font-bold text-white mb-6">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-indigo-200 mb-2">
                     Product Name
                   </label>
                   <input
@@ -183,12 +191,12 @@ export default function ProductManager() {
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, name: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-4 py-3 bg-white/5 border border-indigo-300/20 rounded-xl text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-indigo-200 mb-2">
                     Price
                   </label>
                   <input
@@ -198,11 +206,11 @@ export default function ProductManager() {
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, price: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-4 py-3 bg-white/5 border border-indigo-300/20 rounded-xl text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     required
                   />
                 </div>
-                <div className="flex justify-end gap-4 mt-6">
+                <div className="flex justify-end gap-4 mt-8">
                   <button
                     type="button"
                     onClick={() => {
@@ -210,13 +218,13 @@ export default function ProductManager() {
                       setEditingProduct(null);
                       setNewProduct({ name: '', price: '' });
                     }}
-                    className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                    className="px-6 py-3 bg-white/10 rounded-xl text-white hover:bg-white/20 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     {editingProduct ? 'Save Changes' : 'Add Product'}
                   </button>
